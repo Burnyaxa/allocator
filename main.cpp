@@ -161,16 +161,13 @@ void* mem_realloc(void* pointer, size_t size)
 
 	if (get_size(pointer) > size) // if the existing block has more memory than needed
 	{
-		if (get_size(pointer) - size - SIZE_H >= 0) // block size must be more than header size
+		new_header((uint8_t*)pointer + size + SIZE_H, false, size, get_size(pointer) - size -
+			SIZE_H);
+		set_size(pointer, size);
+		if (get_next(get_next(pointer)) != nullptr &&
+			get_status(get_next(get_next(pointer))) == 0)
 		{
-			new_header((uint8_t*)pointer + size + SIZE_H, false, size, get_size(pointer) - size -
-				SIZE_H);
-			set_size(pointer, size);
-			if (get_next(get_next(pointer)) != nullptr &&
-				get_status(get_next(get_next(pointer))) == 0)
-			{
-				combine_headers(get_next(pointer), get_next(get_next(pointer)));
-			}
+			combine_headers(get_next(pointer), get_next(get_next(pointer)));
 		}
 		return pointer;
 
